@@ -1,0 +1,7 @@
+"logicAppName": "CustomerPdfExtractor",
+"sqlConnectionName": "sql-connection",
+"office365ConnectionName": "office365-connection",
+"formRecognizerConnectionName": "formrecognizer-connection",
+"resourceGroup": "my-rg",
+"location": "westeurope"
+}
