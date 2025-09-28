@@ -1,0 +1,60 @@
+{
+},
+"Call_Form_Recognizer": {
+"type": "ApiConnection",
+"runAfter": {
+"Get_Attachment_Content": [
+"Succeeded"
+]
+},
+"inputs": {
+"host": {
+"connection": {
+"name": "@parameters('$connections')['formrecognizer']['connectionId']"
+}
+},
+"method": "post",
+"path": "/formrecognizer/v2.1/layout/analyze",
+"body": {
+"file": "@base64(outputs('Get_Attachment_Content'))"
+}
+}
+},
+"Parse_Extraction": {
+"type": "Compose",
+"runAfter": {
+"Call_Form_Recognizer": [
+"Succeeded"
+]
+},
+"inputs": "@body('Call_Form_Recognizer')"
+},
+"Insert_into_SQL": {
+"type": "ApiConnection",
+"runAfter": {
+"Parse_Extraction": [
+"Succeeded"
+]
+},
+"inputs": {
+"host": {
+"connection": {
+"name": "@parameters('$connections')['sql']['connectionId']"
+}
+},
+"method": "post",
+"path": "/datasets/default/tables/Documents/rows",
+"body": [
+{
+"FileName": "@items('Get_Attachment_Content')?['name']",
+"ExtractedTitle": "@first(body('Parse_Extraction')?['pages'])?['text']",
+"ExtractedDate": "@utcNow()",
+"ExtractedEmail": "@first(xpath(xml(body('Parse_Extraction')?['content']), '//email'))",
+"RawJson": "@json(body('Parse_Extraction'))"
+}
+]
+}
+}
+},
+"outputs": {}
+}

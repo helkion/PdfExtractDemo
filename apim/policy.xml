@@ -1,0 +1,36 @@
+<!--
+APIM inbound policy example. Apply to the API that fronts the Logic App.
+- Enforces subscription key validation (built-in)
+- Adds simple IP filter and rate-limit
+-->
+<policies>
+<inbound>
+<!-- Validate subscription is required (APIM does this by default when a subscription is enforced) -->
+<base />
+
+
+<!-- Basic IP allow list (example) -->
+<check-header name="X-Forwarded-For" failed-check-httpcode="403" failed-check-error-message="Forbidden">
+<value>^(123\.45\.67\.89|98\.76\.54\.32)$</value>
+</check-header>
+
+
+<!-- Rate limit: 60 calls per minute per subscription -->
+<rate-limit-by-key calls="60" renewal-period="60" increment-condition="true">
+<key>@(context.Subscription?.Id ?? context.Request.Headers.GetValueOrDefault("Ocp-Apim-Subscription-Key",""))</key>
+</rate-limit-by-key>
+
+
+<!-- Forward request to the backend (Logic App) -->
+<set-backend-service base-url="https://<your-logicapp-url>.azurewebsites.net" />
+</inbound>
+<backend>
+<base />
+</backend>
+<outbound>
+<base />
+</outbound>
+<on-error>
+<base />
+</on-error>
+</policies>
