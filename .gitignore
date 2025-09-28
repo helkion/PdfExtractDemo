@@ -1,0 +1,19 @@
+---
+
+
+## `.gitignore`
+
+
+```text
+# Node / temp
+node_modules/
+.env
+.DS_Store
+
+
+# VSCode
+.vscode/
+
+
+# Azure artifacts
+*.zip
